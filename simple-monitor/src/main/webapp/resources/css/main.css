@@ -1,0 +1,26 @@
+
+body {
+    font-size: 12px;
+}
+
+*:focus, *:active {
+    outline: 0;
+}
+
+.blueButton {
+    margin: 5px 0;
+}
+
+.blueButton span {
+    background-color: #009CE5;
+    color: #FFF;
+    text-shadow: none;
+}
+
+.blueButton span:hover {
+    background-color: #0086C4;   
+}
+
+table {
+    font-size: 1.1em;
+}

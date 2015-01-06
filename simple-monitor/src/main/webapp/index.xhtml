@@ -1,0 +1,120 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Simple Monitor</title>
+        <meta name="author" content="Pablo Soto Medina" />
+	<h:outputStylesheet name="css/main.css" />
+    </h:head>
+    <h:body>
+        <p:messages autoUpdate="true" globalOnly="true"/>
+        <h:form>
+            <p:dialog header="Add Application" widgetVar="dlg" modal="true" resizable="false">
+                <h:panelGroup id="form-content">
+                    <h:panelGrid columns="3" cellpadding="5">
+                        <h:outputLabel for="name" value="Name:*" style="display:inline-block;width:150px;"/>
+                        <p:inputText id="name" 
+                                     value="#{applicationController.application.name}" 
+                                     required="true" 
+                                     style="width:200px;"/>
+                        <p:message for="name" display="text"/>
+
+                        <h:outputLabel for="method" value="Monitoring method:*" style="display:inline-block;width:150px;"/>
+                        <p:selectOneMenu id="method" style="width:200px;" value="#{applicationController.method}" required="true">
+                            <f:selectItem itemLabel="------" itemValue="#{null}"/>
+                            <f:selectItems value="#{applicationController.monitoringMethods}"
+                                           var="method"
+                                           itemLabel="#{method.label}"
+                                           itemValue="#{method}"/>
+                            <p:ajax process="@this" update="methodPanel"/>
+                        </p:selectOneMenu>
+                        <p:message for="method" display="text"/>
+                    </h:panelGrid>
+
+                    <h:panelGrid id="methodPanel" columns="3" cellpadding="5">
+                        <h:outputLabel for="ip" value="IP:*" style="display:inline-block;width:150px;" rendered="#{applicationController.method == 'PING'}"/>
+                        <p:inputText id="ip" 
+                                     value="#{applicationController.application.method.ip}" 
+                                     required="true" 
+                                     style="width:200px;"
+                                     rendered="#{applicationController.method == 'PING'}"/>
+                        <p:message for="ip" display="text" rendered="#{applicationController.method == 'PING'}"/>
+
+                        <h:outputLabel for="url" value="URL:*" style="display:inline-block;width:150px;" rendered="#{applicationController.method == 'RESPONSE_REGEX'}"/>
+                        <p:inputText id="url" 
+                                     value="#{applicationController.application.method.url}" 
+                                     required="true" 
+                                     style="width:200px;"
+                                     rendered="#{applicationController.method == 'RESPONSE_REGEX'}"/>
+                        <p:message for="ip" display="text" rendered="#{applicationController.method == 'RESPONSE_REGEX'}"/>
+
+                        <h:outputLabel for="regex" value="Regex:*" style="display:inline-block;width:150px;" rendered="#{applicationController.method == 'RESPONSE_REGEX'}"/>
+                        <p:inputText id="regex" 
+                                     value="#{applicationController.application.method.regex}" 
+                                     required="true" 
+                                     style="width:200px;"
+                                     rendered="#{applicationController.method == 'RESPONSE_REGEX'}"/>
+                        <p:message for="regex" display="text" rendered="#{applicationController.method == 'RESPONSE_REGEX'}"/>
+
+                    </h:panelGrid>
+                    <h:panelGrid columns="3" cellpadding="5">
+                        <h:outputLabel for="period" value="Period (Minutes):*" style="display:inline-block;width:150px;"/>
+                        <p:selectOneMenu id="period" style="width:200px;" value="#{applicationController.application.period}" required="true">
+                            <f:selectItem itemLabel="------" itemValue="#{null}"/>
+                            <f:selectItems value="#{applicationController.monitoringPeriods}"/>
+                        </p:selectOneMenu>
+                        <p:message for="period" display="text"/>
+
+                        <p:commandButton value="Add" action="#{applicationController.createApplication()}" update="form-content"/>
+                    </h:panelGrid>
+                    
+                </h:panelGroup>
+            </p:dialog>
+            <p:panel header="Monitored Apps">
+                <p:commandButton value="Add APP" onclick="PF('dlg').show();" styleClass="blueButton"/>
+                <p:commandButton value="Reload" actionListener="#{applicationController.init()}" process="@this" update="@form" styleClass="blueButton"/>
+                <p:dataTable value="#{applicationController.applications}" var="aw" emptyMessage="You have not added any application yet">
+                    <p:column width="15">
+                        <p:rowToggler/>
+                    </p:column>
+                    <p:column headerText="Name" sortBy="#{aw.application.name}">
+                        <h:outputText value="#{aw.application.name}"/>
+                    </p:column>
+                    <p:column headerText="status" width="120" sortBy="#{aw.lasStatusCheck.status}">
+                        <h:outputText value="#{aw.lasStatusCheck.status}"/>
+                    </p:column>
+                    <p:rowExpansion>
+                        <h2><h:outputText value="#{aw.application.name}"/></h2>
+                        <p:panelGrid columns="2">
+                            <h:outputText value="Creation date:" />
+                            <h:outputText value="#{aw.application.creationDate}" />
+                            
+                            <h:outputText value="Monitoring period:" />
+                            <h:outputText value="#{aw.application.period} minute/s" />
+                            
+                            <h:outputText value="Status:" />
+                            <h:outputText value="#{aw.lasStatusCheck.status}" />
+                            
+                            <h:outputText value="Last status check:" />
+                            <h:outputText value="#{aw.lasStatusCheck.date}" />
+                            
+                            <h:outputText value="Monitoring type:" />
+                            <h:outputText value="#{aw.application.method.method.label}" />
+                            
+                            <h:outputText value="IP:" rendered="#{aw.application.method.method == 'PING'}"/>
+                            <h:outputText value="#{aw.application.method.ip}" rendered="#{aw.application.method.method == 'PING'}"/>
+                            
+                            <h:outputText value="URL:" rendered="#{aw.application.method.method == 'RESPONSE_REGEX'}"/>
+                            <h:outputText value="#{aw.application.method.url}" rendered="#{aw.application.method.method == 'RESPONSE_REGEX'}"/>
+                            
+                            <h:outputText value="Regex:" rendered="#{aw.application.method.method == 'RESPONSE_REGEX'}"/>
+                            <h:outputText value="#{aw.application.method.regex}" rendered="#{aw.application.method.method == 'RESPONSE_REGEX'}"/>
+                        </p:panelGrid>
+                    </p:rowExpansion>
+                </p:dataTable>
+            </p:panel>
+        </h:form>
+    </h:body>
+</html>
