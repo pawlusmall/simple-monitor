@@ -138,8 +138,8 @@
                                         <jndi-name>java:/SimpleMonitorDS</jndi-name>
                                         <enabled>true</enabled>
                                         <enable>true</enable>
-                                        <user-name>postgres</user-name>
-                                        <password>postgres</password>
+                                        <user-name>admin</user-name>
+                                        <password>admin</password>
                                         <driver-name>postgresql.jar</driver-name>
                                         <use-ccm>false</use-ccm>
                                     </properties>
